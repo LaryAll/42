@@ -1,0 +1,644 @@
+/* GlowByte «Свет» 1.0.0: компоненты. Подключать после svet-fonts.css и svet-tokens.css; не править копию в проекте -
+   правка идёт через дизайнбук портала (designbook/README.md), новая версия приходит целиком.
+   Значения - те же, что у «Обучения» портала (portal-learning-v2.css, portal-sidebar.css), без области .lx и без портальных
+   частностей. Все классы начинаются с .sv-, модификатор - через --. Цвет - только var() токенов и ролей (литерал - только
+   #000 в маске: «видно», а не цвет). Длины данных - атрибутами SVG, не style="". Анимации нет, кроме спиннера загрузки;
+   переходы - только transform и opacity, не дольше 250 мс; при prefers-reduced-motion их нет.
+   Разделы: 0 основа · 1 оболочка · 2 сцена и сетка · 3 поверхности · 4 кнопки · 5 данные · 6 списки и таблица ·
+   7 формы · 8 состояния · 9 значок темы · 10 утилиты · 11 витрина (страницы документации) · 12 телефон · 13 печать. */
+
+/* ===== 0. Основа ===== */
+/* Гарнитуры: :where - нулевая важность, переменные проекта с теми же именами главнее. */
+:where(:root){--ff-b:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;--ff-d:var(--ff-b);
+  --ff-brand:'Syne','Manrope',sans-serif;--ff-m:'JetBrains Mono',ui-monospace,monospace}
+.sv-frame,.sv-room{font-family:var(--ff-b);font-size:15px;line-height:1.5;color:var(--fg);color-scheme:var(--scheme);
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+:where(.sv-frame,.sv-room),:where(.sv-frame,.sv-room) *,:where(.sv-frame,.sv-room) *::before,:where(.sv-frame,.sv-room) *::after{box-sizing:border-box}
+:where(.sv-frame,.sv-room) :where(h1,h2,h3,h4,h5,p,ul,ol,dl,dd,figure,pre,blockquote,fieldset){margin:0}
+:where(.sv-frame,.sv-room) :where(ul,ol)[class]{padding:0;list-style:none}
+:where(.sv-frame,.sv-room) :where(button,input,select,textarea){font:inherit;color:inherit}
+:where(.sv-frame,.sv-room) :where(a){color:inherit}
+:where(.sv-frame,.sv-room) :where(svg){flex-shrink:0}
+.sv-room ::selection,.sv-frame ::selection{background:var(--teal-bloom);color:var(--fg)}
+/* Фокус - роль --focus: янтарь в тёмной, почти чёрный в светлой, чернила на бумаге. Виден везде, только с клавиатуры. */
+.sv-frame :focus-visible,.sv-room :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.sv-skip{position:absolute;left:12px;top:-60px;z-index:100;padding:10px 16px;border-radius:12px;background:var(--amber);color:var(--ink);
+  font-size:15px;font-weight:700;text-decoration:none}
+.sv-skip:focus{top:12px}
+.sv-skip:focus-visible{outline-color:var(--t1)}
+
+/* ===== 1. Оболочка: рама, меню, панель-комната, шапка ===== */
+/* Рама: всё окно - тень комнаты --frame; меню лежит на ней, рабочая панель - скруглённая комната (вариант C). */
+.sv-frame{display:flex;min-height:100vh;margin:0;background:var(--frame);color:var(--t2)}
+/* Wordmark: знак 40 px, GLOWBYTE - Syne капсом (единственный капс системы), GLOW - бирюза знака, BYTE - --t2. */
+.sv-brand{display:inline-flex;align-items:center;gap:13px;min-width:0;min-height:44px;color:inherit;text-decoration:none}
+.sv-brand-mark{display:block;width:40px;height:40px}
+.sv-brand-name{display:block;font-family:var(--ff-brand);font-size:15px;line-height:1;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--t2)}
+.sv-brand-glow{color:var(--teal)}
+/* подпись - часть знака (как на портале и входе): капс 9.5 px - исключение из шкалы кегля, только здесь */
+.sv-brand-sub{display:block;margin-top:4px;font-size:9.5px;line-height:1.2;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+/* Меню: тихое, без своей плиты и линии; янтарь только у значка и метки активного пункта. */
+.sv-side{position:sticky;top:0;z-index:5;display:flex;flex-direction:column;width:220px;height:100vh;flex-shrink:0;background:var(--frame);color:var(--t2)}
+.sv-side-brand{display:flex;align-items:center;height:64px;padding:0 18px;flex-shrink:0}
+.sv-nav{flex:1;display:flex;flex-direction:column;gap:2px;padding:6px 10px 24px;overflow-y:auto;scrollbar-width:thin;
+  -webkit-mask-image:linear-gradient(180deg,black calc(100% - 24px),transparent);mask-image:linear-gradient(180deg,black calc(100% - 24px),transparent)}
+.sv-nav-l{padding:14px 10px 6px;font-size:12px;font-weight:600;color:var(--t3)}
+.sv-nav-l:first-child{padding-top:4px}
+.sv-nav-i{position:relative;display:flex;align-items:center;gap:10px;min-height:36px;padding:0 10px;border-radius:12px;font-size:13px;font-weight:500;
+  color:var(--t2);text-decoration:none;cursor:pointer}
+.sv-nav-i:hover{background:var(--glass);color:var(--t1)}
+.sv-nav-i svg{width:16px;height:16px;color:var(--t3)}
+.sv-nav-i--on{background:var(--glass);color:var(--t1);box-shadow:inset 0 0 0 1px var(--lift),var(--sh-1)}
+.sv-nav-i--on svg{color:var(--amber)}
+.sv-nav-i--on::before{content:"";position:absolute;left:0;top:11px;bottom:11px;width:3px;border-radius:0 4px 4px 0;background:var(--amber)}
+.sv-nav-i--soon{color:var(--t3);cursor:default;pointer-events:none}
+.sv-nav-pill{margin-left:auto;padding:0 8px;border-radius:999px;background:var(--lift);font-size:12px;font-weight:600;color:var(--t2)}
+.sv-nav-sub{display:flex;align-items:center;min-height:30px;margin-left:36px;padding:0 10px;border-radius:8px;font-size:13px;font-weight:500;
+  color:var(--t2);text-decoration:none;white-space:nowrap}
+.sv-nav-sub:hover{background:var(--glass);color:var(--t1)}
+.sv-nav-sub--on{color:var(--t1);font-weight:700}
+.sv-side-foot{display:flex;flex-direction:column;gap:10px;margin:0 12px;padding:12px 0 14px;border-top:1px solid var(--lift);flex-shrink:0}
+.sv-me{display:flex;align-items:center;gap:10px;min-width:0}
+.sv-me-n{display:block;font-size:13px;line-height:1.3;font-weight:600;color:var(--t1);overflow-wrap:anywhere}
+.sv-me-s{display:block;font-size:12px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sv-tools{display:flex;align-items:center;gap:4px;margin-left:-4px}
+/* Кнопка-значок: 32 px на компьютере, 44 на телефоне. */
+.sv-ic{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border:0;border-radius:8px;background:none;
+  color:var(--t2);line-height:0;cursor:pointer;text-decoration:none;flex-shrink:0}
+.sv-ic:hover{background:var(--glass);color:var(--t1)}
+.sv-ic svg{display:block}
+/* Панель-комната: небо - два бирюзовых пятна сверху справа; луч падает с неба на бумагу. */
+.sv-room{position:relative;min-width:0;overflow-x:clip;
+  background:radial-gradient(ellipse 760px 560px at 100% 0,var(--teal-air),transparent 72%),radial-gradient(ellipse 1200px 300px at 60% 0,var(--teal-air),transparent 80%),var(--room)}
+body.sv-room{min-height:100vh;margin:0}
+@supports ((-webkit-mask:linear-gradient(#000,transparent)) or (mask:linear-gradient(#000,transparent))){
+  .sv-room::before{content:"";position:absolute;z-index:0;top:-160px;right:40px;width:520px;height:1500px;pointer-events:none;
+    transform:rotate(50deg);transform-origin:top right;background:linear-gradient(90deg,transparent,var(--teal-air) 50%,transparent);
+    -webkit-mask:linear-gradient(180deg,#000 0,#000 25%,transparent 80%);mask:linear-gradient(180deg,#000 0,#000 25%,transparent 80%);filter:blur(34px)}
+}
+/* На раме комната - скруглённая панель: 10 px от краёв окна, радиус 16, кромка-блик светлее сверху; прокрутка внутри. */
+.sv-frame > .sv-room{flex:1;height:calc(100vh - 20px);margin:10px 10px 10px 0;overflow-y:auto;border:1px solid transparent;border-radius:16px;
+  clip-path:inset(0 round 16px);isolation:isolate;
+  background:radial-gradient(ellipse 760px 560px at 100% 0,var(--teal-air),transparent 72%) padding-box,
+    radial-gradient(ellipse 1200px 300px at 60% 0,var(--teal-air),transparent 80%) padding-box,
+    linear-gradient(var(--room),var(--room)) padding-box,
+    linear-gradient(180deg,var(--spec),var(--lift) 160px) border-box}
+/* Шапка: часть комнаты, то же небо, липкая; снизу волосок, чтобы карточки не уходили под неё без края. */
+.sv-top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;min-height:53px;padding:0 28px;border-bottom:1px solid var(--rule);color:var(--fg-2);
+  background:radial-gradient(ellipse 760px 560px at 100% 0,var(--teal-air),transparent 72%),radial-gradient(ellipse 1200px 300px at 60% 0,var(--teal-air),transparent 80%),var(--room)}
+.sv-crumb{display:flex;align-items:center;gap:10px;min-width:0;font-size:15px;font-weight:500;color:var(--fg-2)}
+.sv-crumb a{color:var(--fg-2);text-decoration:none;white-space:nowrap}
+.sv-crumb a:hover{color:var(--fg)}
+.sv-crumb b{font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sv-crumb i{font-style:normal;color:var(--mute)}
+.sv-back{display:none}
+.sv-top-r{display:flex;align-items:center;gap:6px;margin-left:auto;font-size:13px;color:var(--fg-2);text-decoration:none;white-space:nowrap}
+.sv-top-r b{font-weight:600;color:var(--fg)}
+.sv-top-r svg{color:var(--mute)}
+/* Телефонное меню: бургер, крестик и затемнение есть только на телефоне (раздел 12). */
+.sv-burger,.sv-side-x,.sv-shade{display:none}
+.sv-burger,.sv-side-x{align-items:center;justify-content:center;width:44px;height:44px;flex:none;padding:0;border:0;border-radius:8px;background:none;cursor:pointer}
+.sv-burger{margin-left:-8px;color:var(--fg)}
+.sv-burger:hover{background:var(--well)}
+.sv-side-x{margin:0 -8px 0 auto;color:var(--t2)}
+.sv-side-x:hover{background:var(--glass);color:var(--t1)}
+
+/* ===== 2. Сцена и сетка ===== */
+/* Сцена: верх комнаты, не полоса. Кикер, фраза в две строки (главное и честный остаток), справа - прибор. */
+.sv-stage{position:relative;padding:44px 28px 48px}
+.sv-stage-in{position:relative;z-index:1;max-width:1164px;margin:0 auto}
+.sv-stage--inst .sv-stage-in{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:40px;align-items:start}
+.sv-kicker{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;font-size:15px;font-weight:500;color:var(--fg-2)}
+.sv-kicker b{font-weight:700;color:var(--fg)}
+.sv-phrase{font-family:var(--ff-d);font-size:56px;line-height:1.05;font-weight:800;letter-spacing:-2.2px;color:var(--fg)}
+.sv-stage--inst .sv-phrase{font-size:48px;letter-spacing:-1.9px}
+.sv-phrase > span{display:block;color:var(--fg);text-shadow:0 0 48px var(--teal-air);text-wrap:balance}
+/* вторая строка: --fg-2 (не меньше 7:1 к комнате), тусклее первой, без ореола */
+.sv-phrase > .sv-dim{color:var(--fg-2);text-shadow:none}
+/* Страница: до 1220, 12 колонок, гаттер 24; рядом с бумагой стекло не тянется до её высоты. */
+.sv-page{position:relative;z-index:2;max-width:1220px;margin:0 auto;padding:0 28px 72px}
+.sv-row{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:24px;align-items:stretch}
+.sv-row + .sv-row{margin-top:24px}
+.sv-row > *{min-width:0}
+.sv-s12{grid-column:span 12}
+.sv-s8{grid-column:span 8}
+.sv-s6{grid-column:span 6}
+.sv-s4{grid-column:span 4}
+.sv-s3{grid-column:span 3}
+.sv-row:has(> .sv-paper) > :not(.sv-paper){align-self:start}
+.sv-col{display:flex;flex-direction:column;gap:24px;min-width:0}
+
+/* ===== 3. Поверхности: стекло, бумага, лунка ===== */
+/* Стекло: само не светится, ловит небо кромкой. Без backdrop-filter - плотнее (подложена комната), без mask - кромка inset. */
+.sv-card{position:relative;display:flex;flex-direction:column;min-width:0;padding:28px;border-radius:var(--r);color:var(--fg);text-decoration:none;
+  background:radial-gradient(ellipse 55% 140px at 92% 0,var(--sheen),transparent),linear-gradient(180deg,var(--sheen),var(--glass) 200px),var(--room);
+  box-shadow:inset 0 1px 0 var(--lift),inset 0 0 0 1px var(--lift),var(--sh-3)}
+@supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  .sv-card{background:radial-gradient(ellipse 55% 140px at 92% 0,var(--sheen),transparent),linear-gradient(180deg,var(--sheen),var(--glass) 200px);
+    -webkit-backdrop-filter:blur(30px) saturate(1.5);backdrop-filter:blur(30px) saturate(1.5)}
+}
+@supports ((-webkit-mask-composite:xor) or (mask-composite:exclude)){
+  .sv-card{box-shadow:inset 0 1px 0 var(--lift),var(--sh-3)}
+  .sv-card::after{content:"";position:absolute;inset:0;padding:1px;border-radius:inherit;pointer-events:none;
+    background:linear-gradient(200deg,var(--spec),var(--lift) 28%,transparent 55%,var(--lift));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+    mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+}
+/* Бумага: главный предмет экрана и тёплый источник, одна на экран. Роли переключаются на чернила. */
+.sv-paper{--fg:var(--ink);--fg-2:var(--ink-2);--mute:var(--ink-2);--rule:var(--hair);--rule-2:var(--ink-2);--well:var(--hair);--focus:var(--ink);--on-fg:var(--paper);
+  position:relative;z-index:1;display:flex;flex-direction:column;min-width:0;padding:30px 32px 28px;border-radius:var(--r);background:var(--paper);color:var(--ink);
+  /* размытие не больше 70 px: большее Chromium на экранах 2x рисует плитками */
+  box-shadow:0 0 0 1px var(--spec),inset 0 -50px 70px -50px var(--warm-spill),0 0 32px 0 var(--warm-spill),0 0 60px 14px var(--warm-spill),0 44px 64px 0 var(--warm-spill)}
+/* тёплое пятно, которое бумага бросает на пол комнаты */
+.sv-paper::before{content:"";position:absolute;z-index:-1;left:6%;right:6%;bottom:-70px;height:160px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,var(--warm-spill),transparent);filter:blur(18px)}
+/* Лунка: одна подложка внутри стекла или бумаги - цитата, вопрос, пример. Карточка в карточке запрещена. */
+.sv-well{padding:14px 16px;border-radius:12px;background:var(--well);font-size:15px;line-height:1.5;color:var(--fg)}
+.sv-card-h{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
+.sv-card-t{font-size:20px;line-height:1.3;font-weight:700;letter-spacing:-.3px;color:var(--fg)}
+.sv-paper .sv-card-t{font-size:24px;letter-spacing:-.4px}
+.sv-card-s{margin-top:2px;font-size:13px;line-height:1.45;color:var(--fg-2)}
+.sv-card-s a{color:var(--fg);text-decoration:underline;text-underline-offset:3px}
+.sv-text{font-size:15px;line-height:1.55;color:var(--fg-2)}
+.sv-text b{font-weight:600;color:var(--fg)}
+.sv-text + .sv-text{margin-top:10px}
+.sv-hr{height:1px;margin:24px 0;border:0;background:var(--rule)}
+.sv-foot{display:flex;align-items:flex-start;gap:10px;margin-top:auto;padding-top:20px;font-size:13px;line-height:1.5;color:var(--fg-2)}
+.sv-foot svg{margin-top:2px;color:var(--mute)}
+.sv-foot a{font-weight:600;color:var(--fg);text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:3px}
+
+/* ===== 4. Кнопки ===== */
+/* Янтарная заливка - одно главное действие экрана; остальное - тихие кнопки и ссылки. */
+.sv-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border:0;border-radius:12px;cursor:pointer;
+  font-family:var(--ff-b);font-size:15px;font-weight:700;line-height:1.2;text-decoration:none;white-space:nowrap;
+  background:var(--well);color:var(--fg);box-shadow:inset 0 1px 0 var(--lift);transition:transform .15s cubic-bezier(.23,1,.32,1)}
+.sv-btn:active{transform:scale(.97)}
+.sv-btn--fill{background:var(--amber);color:var(--ink);box-shadow:inset 0 1px 0 var(--spec),0 12px 28px -12px var(--amber-bloom),0 0 44px -14px var(--amber-bloom)}
+.sv-btn--fill:hover{box-shadow:inset 0 1px 0 var(--spec),0 16px 34px -10px var(--amber-bloom),0 0 56px -10px var(--amber-bloom)}
+.sv-btn--fill:focus-visible{outline-color:var(--fg)}
+.sv-btn--quiet:hover,.sv-btn:not(.sv-btn--fill):not(.sv-btn--off):not(:disabled):not([aria-disabled="true"]):hover{background:var(--fg);color:var(--on-fg)}
+.sv-btn--quiet svg{opacity:.75}
+.sv-btn--off,.sv-btn:disabled,.sv-btn[aria-disabled="true"]{background:var(--well);color:var(--fg-2);box-shadow:none;cursor:not-allowed}
+.sv-btn--off:active,.sv-btn:disabled:active,.sv-btn[aria-disabled="true"]:active{transform:none}
+.sv-btn--lg{min-height:52px;padding:0 28px}
+.sv-btn--sm{min-height:36px;padding:0 14px;font-size:13px}
+.sv-btn--w{width:100%}
+.sv-lnk{display:inline-flex;align-items:center;gap:2px;min-height:44px;margin:-10px 0;padding:0;border:0;background:none;cursor:pointer;
+  font-size:15px;font-weight:600;color:var(--fg);text-decoration:none;white-space:nowrap}
+.sv-lnk svg{color:var(--mute)}
+.sv-lnk:hover{text-decoration:underline;text-underline-offset:3px}
+.sv-acts{display:flex;align-items:center;flex-wrap:wrap;gap:16px}
+.sv-acts-n{font-size:13px;color:var(--fg-2)}
+
+/* ===== 5. Данные: бирюза - только данные; на бумаге данные чернилами ===== */
+/* Кольцо: трек --lift, дуга --teal со свечением, засечка плана --fg; длина - stroke-dasharray, угол засечки - rotate. */
+.sv-ring{position:relative;flex-shrink:0;width:240px;height:240px}
+.sv-ring::before{content:"";position:absolute;inset:-30px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,var(--teal-air) 0,transparent 68%)}
+.sv-ring svg{position:relative;display:block;width:100%;height:100%;overflow:visible}
+.sv-ring circle{fill:none}
+.sv-ring-tr{stroke:var(--lift);stroke-width:5}
+.sv-ring-bl{stroke:var(--teal-bloom);stroke-width:8;stroke-linecap:round;filter:blur(3.5px)}
+.sv-ring-v{stroke:var(--teal);stroke-width:5;stroke-linecap:round}
+.sv-ring-plan{stroke:var(--fg);stroke-width:1.5;stroke-linecap:round}
+.sv-ring-n{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sv-ring-n b{font-size:64px;line-height:1;font-weight:800;letter-spacing:-2.5px;color:var(--fg);font-variant-numeric:tabular-nums}
+.sv-ring-n b small{margin-left:2px;font-size:24px;font-weight:800;letter-spacing:0}
+.sv-ring-n span{margin-top:6px;font-size:13px;color:var(--fg-2)}
+.sv-ring--plan{margin-bottom:26px}
+.sv-ring-p{position:absolute;top:100%;left:50%;display:flex;align-items:center;gap:8px;margin-top:6px;transform:translateX(-50%);
+  font-size:13px;line-height:1.3;color:var(--fg-2);white-space:nowrap}
+.sv-ring-p i{display:block;width:2px;height:12px;border-radius:4px;background:var(--fg)}
+.sv-ring--sm{width:88px;height:88px}
+.sv-ring--sm::before{inset:-12px}
+.sv-ring--sm .sv-ring-n b{font-size:24px;letter-spacing:-.6px}
+.sv-ring--sm .sv-ring-n b small{font-size:13px}
+.sv-ring--sm .sv-ring-n span{margin-top:1px;font-size:12px}
+/* Нить прогресса: трек --lift 4, заливка --teal 4 со свечением, засечка плана --fg 2. */
+.sv-thread{display:block;width:100%;height:12px;overflow:visible;filter:drop-shadow(0 0 4px var(--teal-bloom))}
+.sv-thread--off{filter:none}
+.sv-thread-tr{stroke:var(--lift);stroke-width:4;stroke-linecap:round}
+.sv-thread-v{stroke:var(--teal);stroke-width:4;stroke-linecap:round}
+.sv-thread-plan{stroke:var(--fg);stroke-width:2;stroke-linecap:round}
+.sv-paper .sv-thread{filter:none}
+.sv-paper .sv-thread-tr{stroke:var(--hair)}
+.sv-paper .sv-thread-v{stroke:var(--ink)}
+.sv-prog{display:flex;align-items:center;gap:14px;min-width:0}
+.sv-prog .sv-thread{flex:1 1 150px}
+.sv-prog-n{flex:none;font-size:13px;color:var(--fg-2);font-variant-numeric:tabular-nums}
+.sv-prog-n b{font-size:15px;font-weight:700;color:var(--fg)}
+/* Лампы людей: 44 px, инициалы, по 5 в ряд; помочь - янтарь, по плану - кольцо бирюзы, завершил - бирюза, не завершил - пунктир. */
+.sv-lamps{display:grid;grid-template-columns:repeat(5,44px);gap:14px}
+.sv-lamp{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:var(--glass);
+  font-size:13px;font-weight:700;letter-spacing:.2px;color:var(--fg);text-decoration:none}
+.sv-lamp--help{background:var(--amber);color:var(--ink);box-shadow:inset 0 1px 0 var(--spec),0 0 18px 0 var(--amber-bloom)}
+.sv-lamp--plan{box-shadow:inset 0 0 0 1.5px var(--teal),0 0 16px -2px var(--teal-bloom)}
+.sv-lamp--done{background:var(--teal);color:var(--on-teal);box-shadow:inset 0 1px 0 var(--spec),0 0 16px -2px var(--teal-bloom)}
+.sv-lamp--closed{background:transparent;color:var(--fg-2);box-shadow:none;outline:1.5px dashed var(--rule-2);outline-offset:-1.5px}
+a.sv-lamp:hover{text-decoration:underline;text-underline-offset:3px}
+.sv-lamp:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.sv-lamps-cap{max-width:300px;margin-top:16px;font-size:13px;line-height:1.45;color:var(--fg-2)}
+/* Огни 7 px: тёплый - «стоит помочь», ошибка; холодный - данные (завершил, AA пройден). */
+.sv-led{display:inline-block;flex-shrink:0;width:7px;height:7px;border-radius:50%;background:var(--mute)}
+.sv-led--warm{background:var(--amber);box-shadow:0 0 10px 1px var(--amber-bloom)}
+.sv-led--cool{background:var(--teal);box-shadow:0 0 10px 1px var(--teal-bloom)}
+/* Статус словами с огнём: одинаково на сцене, в таблице и профиле. */
+.sv-st{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--fg-2);white-space:nowrap}
+.sv-st--help{font-weight:600;color:var(--fg)}
+/* Плитки заданий: зачтено - заливка, начато - кольцо, впереди - стекло, необязательное - пунктир. */
+.sv-chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.sv-chips--8{grid-template-columns:repeat(8,minmax(0,1fr))}
+.sv-chip{display:flex;align-items:center;justify-content:center;height:46px;padding:0;border:0;border-radius:12px;background:var(--glass);box-shadow:inset 0 0 0 1px var(--rule-2);
+  font-size:13px;font-weight:700;color:var(--fg-2);font-variant-numeric:tabular-nums;text-decoration:none}
+.sv-chip--ok{background:var(--teal);color:var(--on-teal);box-shadow:inset 0 1px 0 var(--spec),0 0 18px -2px var(--teal-bloom)}
+.sv-chip--wip{color:var(--fg);box-shadow:inset 0 0 0 2px var(--teal),0 0 14px -4px var(--teal-bloom)}
+.sv-chip--x{background:transparent;color:var(--fg-2);box-shadow:none;outline:1.5px dashed var(--mute);outline-offset:-1.5px}
+.sv-chip--ok.sv-chip--x{background:var(--teal);color:var(--on-teal);outline:1.5px dashed var(--on-teal);outline-offset:-4px}
+.sv-chips--6{grid-template-columns:repeat(6,minmax(0,1fr))}
+.sv-key{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:16px;font-size:13px;color:var(--fg-2)}
+.sv-key span{display:inline-flex;align-items:center;gap:8px}
+.sv-key i{width:12px;height:12px;border-radius:4px;background:var(--glass);box-shadow:inset 0 0 0 1px var(--rule-2)}
+.sv-key .sv-chip--ok{background:var(--teal);box-shadow:0 0 8px var(--teal-bloom)}
+.sv-key .sv-chip--wip{background:transparent;box-shadow:inset 0 0 0 2px var(--teal)}
+.sv-key .sv-chip--x{background:transparent;box-shadow:none;outline-offset:-1.5px}
+/* Пятиступенчатый измеритель: 8 px точки; горит - бирюза, на бумаге - чернила. */
+.sv-meter{display:inline-flex;gap:3px;vertical-align:middle}
+.sv-meter i{width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--mute)}
+.sv-meter .sv-meter-on{background:var(--teal);box-shadow:0 0 6px var(--teal-bloom)}
+.sv-paper .sv-meter .sv-meter-on{background:var(--ink);box-shadow:none}
+/* Неделя Пн-Пт: занимался - --fg, сегодня - жирный, впереди - контур. */
+.sv-week{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:center;min-width:0}
+.sv-week-l{font-size:13px;line-height:1.45;color:var(--fg-2)}
+.sv-week-l b{display:block;font-size:17px;font-weight:700;color:var(--fg)}
+.sv-days{display:flex;gap:8px}
+.sv-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--fg-2)}
+.sv-day::before{content:"";width:100%;height:6px;border-radius:4px;background:var(--well)}
+.sv-day--on::before{background:var(--fg)}
+.sv-day--fut::before{background:transparent;box-shadow:inset 0 0 0 1px var(--rule)}
+.sv-day--on,.sv-day--now{font-weight:700;color:var(--fg)}
+/* Пилюля «ждёт решения» и аватар. */
+.sv-pill{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 12px 0 10px;border-radius:999px;background:var(--well);
+  font-size:13px;font-weight:600;color:var(--fg);white-space:nowrap}
+.sv-pill i{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px 1px var(--amber-bloom)}
+.sv-av{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex-shrink:0;border-radius:50%;background:var(--well);
+  box-shadow:inset 0 1px 0 var(--lift);font-size:13px;font-weight:700;letter-spacing:.3px;color:var(--fg)}
+.sv-av--sm{width:28px;height:28px;font-size:12px}
+.sv-av--lg{width:44px;height:44px;font-size:15px}
+.sv-facts{display:flex;flex-wrap:wrap;row-gap:16px}
+.sv-fact{padding:4px 24px 6px;border-left:1px solid var(--rule)}
+.sv-fact:first-child{padding-left:0;border-left:0}
+.sv-fact b{display:block;font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-1.2px;color:var(--fg);font-variant-numeric:tabular-nums}
+.sv-fact span{display:block;margin-top:6px;font-size:13px;color:var(--fg-2)}
+
+/* ===== 6. Списки и таблица ===== */
+/* Строка-ссылка: на всю ширину, волосок сверху, шеврон --mute. */
+.sv-mrow{display:grid;grid-template-columns:minmax(0,1fr) auto 16px;align-items:center;gap:12px;min-height:64px;padding:10px 0;border-top:1px solid var(--rule);
+  color:inherit;text-decoration:none}
+.sv-mrow:first-child{border-top:0}
+.sv-mrow > span:first-child{min-width:0}
+.sv-mrow > .sv-line{flex-wrap:nowrap}
+.sv-mrow > .sv-line > span:last-child{min-width:0}
+.sv-mrow-t{display:block;font-size:15px;font-weight:600;color:var(--fg)}
+.sv-mrow-s{display:block;margin-top:2px;font-size:13px;color:var(--fg-2)}
+.sv-mrow-m{font-size:13px;color:var(--fg-2);white-space:nowrap}
+.sv-mrow > svg{color:var(--mute)}
+a.sv-mrow:hover .sv-mrow-t{text-decoration:underline;text-underline-offset:3px}
+a.sv-mrow:hover > svg{color:var(--fg)}
+/* Таблица на стекле: th 44, 13/600; td 68, 15; горячая строка - тёплый свет слева и янтарная нить. */
+.sv-tbl{width:100%;border-collapse:collapse}
+.sv-tbl caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sv-tbl th{height:44px;padding:0 12px;border-bottom:1px solid var(--rule);text-align:left;font-size:13px;font-weight:600;color:var(--fg-2);white-space:nowrap}
+.sv-tbl td{height:68px;padding:0 12px;border-bottom:1px solid var(--rule);font-size:15px;color:var(--fg);white-space:nowrap;vertical-align:middle}
+.sv-tbl th:first-child,.sv-tbl td:first-child{padding-left:0}
+.sv-tbl th:last-child,.sv-tbl td:last-child{padding-right:0}
+.sv-tbl tr:last-child td{border-bottom:0}
+.sv-tbl td.sv-num,.sv-tbl th.sv-num{text-align:right}
+.sv-tbl-go{width:16px}
+.sv-tbl-go svg{display:block;color:var(--mute)}
+.sv-tbl tr:hover > td{background:var(--well)}
+.sv-tbl tr:hover > td:first-child{box-shadow:-12px 0 0 var(--well)}
+.sv-tbl tr:hover > td:last-child{box-shadow:12px 0 0 var(--well)}
+.sv-tbl .sv-tbl-hot{background:linear-gradient(90deg,var(--warm-spill),transparent 50%)}
+.sv-tbl .sv-tbl-hot > td:first-child{position:relative}
+.sv-tbl .sv-tbl-hot > td:first-child::before{content:"";position:absolute;left:-14px;top:12px;bottom:12px;width:2px;border-radius:999px;background:var(--amber);box-shadow:0 0 12px var(--amber-bloom);z-index:1}
+.sv-tbl .sv-tbl-hot > td:first-child::after{content:"";position:absolute;left:-14px;top:0;bottom:0;width:14px;background:var(--warm-spill)}
+.sv-tbl-who{display:flex;align-items:center;gap:12px}
+.sv-tbl-who b{display:block;font-weight:600}
+.sv-tbl-who span span:not([class]){display:block;font-size:13px;color:var(--fg-2)}
+.sv-tbl .sv-tbl-m{display:none}
+.sv-tbl a{color:inherit;text-decoration:none}
+.sv-tbl a:hover{text-decoration:underline;text-underline-offset:3px}
+.sv-tbl-f{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:8px;padding-top:12px;border-top:1px solid var(--rule);font-size:13px;color:var(--fg-2)}
+/* Таблица-справочник (не превращается в карточки на телефоне): строки ниже, текст переносится. */
+.sv-tbl--ref td{height:auto;padding-top:12px;padding-bottom:12px;white-space:normal;line-height:1.45}
+.sv-tbl--ref th{white-space:normal}
+.sv-tbl-d{display:block;margin-top:4px;font-size:13px;color:var(--fg-2)}
+.sv-tbl--ref td:first-child:has(.sv-tbl-d){width:50%}
+.sv-tbl--ref tr:hover > td,.sv-tbl--ref tr:hover > td:first-child,.sv-tbl--ref tr:hover > td:last-child{background:none;box-shadow:none}
+/* Пустое состояние: в той же карточке, строка о том, что будет дальше, и одно действие. Без иллюстраций. */
+.sv-empty{padding:32px 0 8px;text-align:center}
+.sv-empty b{display:block;font-size:20px;font-weight:700;letter-spacing:-.3px;color:var(--fg)}
+.sv-empty span{display:block;margin-top:4px;font-size:15px;color:var(--fg-2)}
+.sv-empty .sv-acts{justify-content:center;margin-top:12px}
+
+/* ===== 7. Формы ===== */
+.sv-field{position:relative;display:block;margin-top:20px}
+.sv-field:first-child{margin-top:0}
+.sv-lbl{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;font-size:13px;font-weight:600;color:var(--fg)}
+.sv-lbl span{font-weight:500;color:var(--fg-2)}
+/* Поле: подложка --well, рамка --rule-2 (3:1), фокус - рамка 2 px --fg. На телефоне кегль 17: iOS не увеличивает. */
+.sv-input{display:block;width:100%;min-height:44px;padding:0 14px;border:0;border-radius:12px;background:var(--well);box-shadow:inset 0 0 0 1px var(--rule-2);
+  font-family:var(--ff-b);font-size:15px;line-height:1.45;color:var(--fg);-webkit-appearance:none;appearance:none}
+textarea.sv-input{min-height:104px;padding:12px 14px;resize:vertical}
+.sv-input::placeholder{color:var(--fg-2);opacity:1}
+.sv-input:focus{outline:0;box-shadow:inset 0 0 0 2px var(--fg)}
+.sv-input:disabled{background:transparent;box-shadow:inset 0 0 0 1px var(--rule);color:var(--fg-2);cursor:not-allowed}
+.sv-input[aria-invalid="true"]{box-shadow:inset 0 0 0 1.5px var(--fg)}
+.sv-select{position:relative;display:block}
+.sv-select .sv-input{padding-right:40px;cursor:pointer}
+/* стрелка - маска цвета --mute, одна на обе темы */
+.sv-select::after{content:"";position:absolute;right:14px;top:50%;width:16px;height:16px;margin-top:-8px;pointer-events:none;background:var(--mute);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat}
+.sv-check{display:inline-flex;align-items:center;gap:10px;min-height:44px;font-size:15px;color:var(--fg);cursor:pointer}
+.sv-check input{width:18px;height:18px;margin:0;accent-color:var(--fg);cursor:pointer}
+.sv-checks{display:flex;flex-wrap:wrap;gap:0 24px}
+/* Ошибка поля: янтарная точка и текст --fg - что случилось и что сделать. Красного нет. */
+.sv-err{display:flex;gap:8px;margin-top:8px;font-size:13px;line-height:1.45;color:var(--fg)}
+.sv-err::before{content:"";flex-shrink:0;width:7px;height:7px;margin-top:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px 1px var(--amber-bloom)}
+.sv-hint{margin-top:8px;font-size:13px;line-height:1.45;color:var(--fg-2)}
+/* Сегмент: стекло r16, пункт 36 r12; выбранный - подъём --lift с кромкой, не белая пилюля. */
+.sv-seg{display:inline-flex;max-width:100%;padding:4px;border-radius:16px;background:var(--glass);box-shadow:inset 0 0 0 1px var(--lift)}
+.sv-seg-i{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:0 14px;border:0;border-radius:12px;background:none;cursor:pointer;
+  font-size:13px;font-weight:600;color:var(--fg-2);text-decoration:none;white-space:nowrap}
+.sv-seg-i:hover{color:var(--fg)}
+.sv-seg-i--on{background:var(--lift);color:var(--fg);box-shadow:inset 0 0 0 1px var(--rule)}
+/* Поиск: 250 x 44, кант --rule-2, фокус - кант 2 px --fg. */
+.sv-find{display:flex;align-items:center;gap:8px;width:250px;max-width:100%;min-height:44px;padding:0 14px;border-radius:12px;background:var(--glass);
+  box-shadow:inset 0 0 0 1px var(--rule-2);color:var(--fg-2);cursor:text}
+.sv-find svg{color:var(--mute)}
+.sv-find input{flex:1;min-width:0;height:42px;padding:0;border:0;background:none;font-size:15px;color:var(--fg);outline:0;-webkit-appearance:none;appearance:none}
+.sv-find input::placeholder{color:var(--fg-2);opacity:1}
+.sv-find:focus-within{box-shadow:inset 0 0 0 2px var(--fg)}
+.sv-bar{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:8px}
+.sv-bar > .sv-card-t{margin-right:auto}
+
+/* ===== 8. Состояния: бумага с причиной и действием ===== */
+.sv-state-ic{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;margin-bottom:16px;border-radius:12px;background:var(--well);color:var(--fg)}
+.sv-state .sv-acts{margin-top:24px}
+.sv-state .sv-text{max-width:560px}
+/* Спиннер - единственная анимация «Света»: загрузка без него выглядит зависшей. При reduced-motion - втрое медленнее. */
+.sv-spin{display:inline-block;flex-shrink:0;width:20px;height:20px;border:2.5px solid var(--rule);border-top-color:var(--fg);border-radius:50%;animation:sv-spin .8s linear infinite}
+@keyframes sv-spin{to{transform:rotate(360deg)}}
+.sv-load{display:flex;align-items:center;gap:12px}
+/* «Данные устарели»: только когда устарели, первой строкой первой карточки. */
+.sv-fresh{display:flex;align-items:center;gap:12px;margin:0 0 20px;padding:12px 16px;border-radius:12px;background:var(--well);font-size:13px;line-height:1.45;color:var(--fg)}
+.sv-fresh a,.sv-fresh button{margin-left:auto;padding:0;border:0;background:none;font-size:13px;font-weight:600;color:var(--fg);text-decoration:none;cursor:pointer}
+
+/* ===== 9. Значок темы: показывает тему, которую включит; солнце и луна в одной клетке ===== */
+.sv-theme{display:inline-grid;place-items:center}
+.sv-theme svg{grid-area:1 / 1;transition:transform .2s cubic-bezier(.23,1,.32,1),opacity .2s cubic-bezier(.23,1,.32,1)}
+.sv-theme .sv-ic-moon,[data-theme="light"] .sv-theme .sv-ic-sun{opacity:0;transform:rotate(-90deg) scale(.6)}
+[data-theme="light"] .sv-theme .sv-ic-moon{opacity:1;transform:none}
+.sv-theme:active svg{transform:scale(.9)}
+
+/* ===== 10. Утилиты: только ступени шкал ===== */
+.sv-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.sv-num{font-variant-numeric:tabular-nums}
+.sv-nw{white-space:nowrap}
+.sv-fg2{color:var(--fg-2)}
+.sv-b{font-weight:700}
+.sv-mono{font-family:var(--ff-m);font-weight:500}
+.sv-stack{display:flex;flex-direction:column}
+.sv-line{display:flex;align-items:center;flex-wrap:wrap}
+.sv-t12{font-size:12px}.sv-t13{font-size:13px}.sv-t15{font-size:15px}.sv-t17{font-size:17px}.sv-t20{font-size:20px;line-height:1.3}
+.sv-t24{font-size:24px;line-height:1.25}.sv-t30{font-size:30px;line-height:1.1}.sv-t40{font-size:40px;line-height:1.05}
+.sv-t48{font-size:48px;line-height:1.05}.sv-t56{font-size:56px;line-height:1.05}.sv-t64{font-size:64px;line-height:1}
+.sv-mt4{margin-top:4px}.sv-mt8{margin-top:8px}.sv-mt12{margin-top:12px}.sv-mt16{margin-top:16px}.sv-mt20{margin-top:20px}.sv-mt24{margin-top:24px}
+.sv-mt28{margin-top:28px}.sv-mt32{margin-top:32px}.sv-mt40{margin-top:40px}.sv-mt48{margin-top:48px}.sv-mt64{margin-top:64px}
+.sv-mb4{margin-bottom:4px}.sv-mb8{margin-bottom:8px}.sv-mb12{margin-bottom:12px}.sv-mb16{margin-bottom:16px}.sv-mb20{margin-bottom:20px}.sv-mb24{margin-bottom:24px}
+.sv-mb28{margin-bottom:28px}.sv-mb32{margin-bottom:32px}.sv-mb40{margin-bottom:40px}.sv-mb48{margin-bottom:48px}.sv-mb64{margin-bottom:64px}
+.sv-gap4{gap:4px}.sv-gap8{gap:8px}.sv-gap12{gap:12px}.sv-gap16{gap:16px}.sv-gap20{gap:20px}.sv-gap24{gap:24px}
+.sv-gap28{gap:28px}.sv-gap32{gap:32px}.sv-gap40{gap:40px}.sv-gap48{gap:48px}.sv-gap64{gap:64px}
+
+/* ===== 11. Витрина: страницы документации и дизайнбук ===== */
+.sv-sec{scroll-margin-top:72px;padding-top:64px}
+.sv-sec-h{display:grid;grid-template-columns:72px minmax(0,1fr);gap:0 24px;margin-bottom:32px}
+.sv-sec-n{padding-top:10px;font-size:13px;font-weight:700;color:var(--mute);font-variant-numeric:tabular-nums}
+.sv-sec-t{font-family:var(--ff-d);font-size:40px;line-height:1.1;font-weight:800;letter-spacing:-1.4px;color:var(--fg);text-wrap:balance}
+.sv-sec-l{grid-column:2;max-width:720px;margin-top:12px;font-size:17px;line-height:1.55;color:var(--fg-2);text-wrap:pretty}
+.sv-sec-l b{font-weight:600;color:var(--fg)}
+.sv-sub{scroll-margin-top:72px;margin:48px 0 16px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.sv-sub-t{font-size:24px;line-height:1.25;font-weight:800;letter-spacing:-.6px;color:var(--fg)}
+.sv-sub-s{font-size:15px;color:var(--fg-2)}
+/* Образец: живая часть на полу комнаты, код под ней, «можно / нельзя» рядом. */
+.sv-demo{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.sv-sample{position:relative;padding:32px;border-radius:24px;box-shadow:inset 0 0 0 1px var(--rule);
+  background:radial-gradient(ellipse 60% 220px at 100% 0,var(--teal-air),transparent 72%)}
+.sv-sample--flat{padding:0;box-shadow:none;background:none}
+.sv-sample--frame{background:var(--frame)}
+.sv-sample--frame .sv-nav{padding:0;overflow:visible;-webkit-mask-image:none;mask-image:none}
+.sv-shell-demo{display:grid;grid-template-columns:240px minmax(0,1fr);gap:24px;align-items:start}
+.sv-tile.sv-paper{flex-direction:row;padding:12px;background:var(--paper);color:var(--ink)}
+.sv-code{position:relative;border-radius:16px;background:var(--well);box-shadow:inset 0 0 0 1px var(--rule)}
+.sv-code-h{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:0 8px 0 16px;border-bottom:1px solid var(--rule);
+  font-size:12px;font-weight:600;color:var(--fg-2)}
+.sv-code pre{max-height:320px;margin:0;padding:14px 16px 16px;overflow:auto;font-family:var(--ff-m);font-size:13px;line-height:1.6;font-weight:500;color:var(--fg);
+.sv-code--full pre{max-height:none}
+  tab-size:2;white-space:pre;scrollbar-width:thin}
+.sv-code code{font-family:inherit;word-spacing:0}
+.sv-copy{min-height:32px;padding:0 12px;font-size:13px}
+.sv-copy[data-done]{background:var(--fg);color:var(--on-fg)}
+.sv-dd{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.sv-do,.sv-dont{display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:16px;box-shadow:inset 0 0 0 1px var(--rule);font-size:15px;line-height:1.5;color:var(--fg-2)}
+.sv-do > b,.sv-dont > b{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--fg)}
+.sv-do > b::before,.sv-dont > b::before{content:"";width:7px;height:7px;border-radius:50%}
+.sv-do > b::before{background:var(--teal);box-shadow:0 0 10px 1px var(--teal-bloom)}
+.sv-dont > b::before{background:var(--amber);box-shadow:0 0 10px 1px var(--amber-bloom)}
+.sv-dont{box-shadow:inset 0 0 0 1px var(--rule),inset 3px 0 0 var(--amber)}
+.sv-dd-pic{display:flex;align-items:center;flex-wrap:wrap;gap:12px;min-height:56px}
+.sv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.sv-grid--2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.sv-grid--4{grid-template-columns:repeat(4,minmax(0,1fr))}
+/* Палитра: образец - SVG, цвета обеих тем ставит svet-theme.js атрибутом fill (без style). */
+.sv-sw{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:center;padding:14px 0;border-top:1px solid var(--rule)}
+.sv-sw:first-child{border-top:0}
+.sv-sw svg{display:block;width:96px;height:56px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--rule)}
+.sv-sw-n{display:block;font-family:var(--ff-m);font-size:13px;font-weight:500;color:var(--fg)}
+.sv-sw-r{display:block;margin-top:2px;font-size:13px;line-height:1.4;color:var(--fg-2)}
+.sv-sw-v{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px;font-family:var(--ff-m);font-size:12px;font-weight:500;color:var(--fg-2)}
+.sv-sw-v span::before{content:attr(data-k);margin-right:6px;font-family:var(--ff-b);font-weight:600;color:var(--mute)}
+/* Заливки SVG ролями и токенами: иллюстрации и образцы без литералов. */
+.sv-f-room{fill:var(--room)}.sv-f-frame{fill:var(--frame)}.sv-f-glass{fill:var(--glass)}.sv-f-lift{fill:var(--lift)}.sv-f-spec{fill:var(--spec)}
+.sv-f-paper{fill:var(--paper)}.sv-f-ink{fill:var(--ink)}.sv-f-hair{fill:var(--hair)}.sv-f-teal{fill:var(--teal)}.sv-f-air{fill:var(--teal-air)}
+.sv-f-amber{fill:var(--amber)}.sv-f-spill{fill:var(--warm-spill)}.sv-f-fg{fill:var(--fg)}.sv-f-fg2{fill:var(--fg-2)}.sv-f-mute{fill:var(--mute)}
+.sv-f-well{fill:var(--well)}.sv-f-none{fill:none}.sv-f-shade{fill:var(--shade)}.sv-f-t1{fill:var(--t1)}.sv-f-t2{fill:var(--t2)}.sv-f-t3{fill:var(--t3)}
+.sv-f-ink2{fill:var(--ink-2)}.sv-f-bloom{fill:var(--teal-bloom)}.sv-f-abloom{fill:var(--amber-bloom)}
+.sv-s-rule{stroke:var(--rule);stroke-width:1}.sv-s-rule2{stroke:var(--rule-2);stroke-width:1}.sv-s-teal{stroke:var(--teal)}.sv-s-fg{stroke:var(--fg)}.sv-s-mute{stroke:var(--mute)}
+.sv-s-amber{stroke:var(--amber)}.sv-s-spec{stroke:var(--spec)}
+.sv-glow-teal{filter:drop-shadow(0 0 4px var(--teal-bloom))}
+.sv-glow-amber{filter:drop-shadow(0 0 6px var(--amber-bloom))}
+.sv-glow-paper{filter:drop-shadow(0 0 10px var(--warm-spill)) drop-shadow(0 0 4px var(--warm-spill))}
+.sv-ill{display:block;width:100%;height:auto;margin-bottom:20px;border-radius:16px;background:var(--room);box-shadow:inset 0 0 0 1px var(--rule)}
+.sv-ill--space{padding:16px 20px;background:none;box-shadow:none}
+.sv-ill-t{font-size:12px;font-variant-numeric:tabular-nums}
+.sv-facts-l{display:grid;gap:8px;margin:0;font-size:13px;line-height:1.45}
+.sv-facts-l > div{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;padding-top:8px;border-top:1px solid var(--rule)}
+.sv-facts-l dt{font-weight:600;color:var(--fg);font-variant-numeric:tabular-nums}
+.sv-facts-l dd{margin:0;color:var(--fg-2)}
+/* Шкалы: образец кегля, радиуса, тени. */
+.sv-spec{display:grid;grid-template-columns:140px minmax(0,1fr);gap:8px 24px;align-items:baseline;padding:14px 0;border-top:1px solid var(--rule)}
+.sv-spec:first-child{border-top:0}
+.sv-spec-k{font-size:13px;color:var(--fg-2);font-variant-numeric:tabular-nums}
+.sv-spec-k b{display:block;font-size:15px;font-weight:700;color:var(--fg)}
+.sv-spec-v{min-width:0;font-weight:700;color:var(--fg);overflow-wrap:anywhere}
+.sv-tile{display:flex;align-items:flex-end;justify-content:flex-start;height:96px;padding:12px;background:var(--glass);box-shadow:inset 0 0 0 1px var(--rule-2);
+  font-size:13px;font-weight:600;color:var(--fg);font-variant-numeric:tabular-nums}
+.sv-r4{border-radius:4px}.sv-r8{border-radius:8px}.sv-r12{border-radius:12px}.sv-r16{border-radius:16px}.sv-r24{border-radius:24px}.sv-r28{border-radius:28px}.sv-r999{border-radius:999px}
+.sv-sh1{box-shadow:var(--sh-1)}.sv-sh2{box-shadow:var(--sh-2)}.sv-sh3{box-shadow:var(--sh-3)}
+.sv-tile.sv-sh1,.sv-tile.sv-sh2,.sv-tile.sv-sh3{background:var(--room);box-shadow:inset 0 0 0 1px var(--lift),var(--sh-1)}
+.sv-tile.sv-sh2{box-shadow:inset 0 0 0 1px var(--lift),var(--sh-2)}
+.sv-tile.sv-sh3{box-shadow:inset 0 0 0 1px var(--lift),var(--sh-3)}
+/* Шрифты: образец гарнитуры. */
+.sv-face{display:block;margin:8px 0 12px;font-size:64px;line-height:1;font-weight:800;letter-spacing:-2.5px;color:var(--fg)}
+.sv-face--mono{font-family:var(--ff-m);font-weight:500;letter-spacing:0}
+.sv-face--brand{font-size:40px;line-height:64px;font-family:var(--ff-brand);font-weight:700;letter-spacing:.9px;text-transform:uppercase}
+.sv-abc{font-size:15px;line-height:1.6;color:var(--fg-2);overflow-wrap:anywhere}
+/* Мини-экран: паттерн целиком в рамке окна. */
+.sv-screen{position:relative;overflow:hidden;border-radius:24px;box-shadow:inset 0 0 0 1px var(--lift),var(--sh-3);
+  background:radial-gradient(ellipse 760px 560px at 100% 0,var(--teal-air),transparent 72%),radial-gradient(ellipse 1200px 300px at 60% 0,var(--teal-air),transparent 80%),var(--room)}
+.sv-screen-bar{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 20px;border-bottom:1px solid var(--rule);font-size:13px;color:var(--fg-2)}
+.sv-screen-bar b{font-weight:600;color:var(--fg)}
+.sv-screen .sv-stage{padding:32px 28px 36px}
+.sv-screen .sv-page{padding-bottom:40px}
+.sv-screen .sv-screen-pad{padding-top:32px}
+.sv-steps{counter-reset:sv-s}
+.sv-steps li{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--rule);font-size:15px;line-height:1.5;color:var(--fg-2)}
+.sv-steps li:first-child{border-top:0}
+.sv-steps li::before{counter-increment:sv-s;content:counter(sv-s);display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;
+  background:var(--well);font-size:13px;font-weight:700;color:var(--fg)}
+.sv-steps b{font-weight:600;color:var(--fg)}
+.sv-steps code,.sv-text code,.sv-card-s code,.sv-tbl code,.sv-do code,.sv-dont code,.sv-hint code,.sv-sec-l code,.sv-sub-s code,.sv-abc code,.sv-bullets code,.sv-foot code{padding:1px 6px;border-radius:4px;background:var(--well);font-family:var(--ff-m);font-size:13px;font-weight:500;color:var(--fg);word-spacing:0;white-space:nowrap}
+.sv-bullets li{position:relative;padding:6px 0 6px 20px;font-size:15px;line-height:1.5;color:var(--fg-2)}
+.sv-bullets li::before{content:"";position:absolute;left:2px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--mute)}
+.sv-bullets b{font-weight:600;color:var(--fg)}
+.sv-badge{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--fg);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* ===== 12. Телефон: до 860 включительно ===== */
+@media (max-width:860px){
+  .sv-frame{display:block}
+  .sv-frame > .sv-room{height:auto;min-height:100vh;margin:0;overflow:visible;border:0;border-radius:0;clip-path:none;
+    background:radial-gradient(ellipse 420px 380px at 100% 0,var(--teal-air),transparent 72%),var(--room)}
+  body.sv-room,.sv-room{background:radial-gradient(ellipse 420px 380px at 100% 0,var(--teal-air),transparent 72%),var(--room)}
+  /* без JS меню - блок над содержимым; с JS (svet-theme.js ставит html.sv-js) - выезжающая панель */
+  .sv-side{position:static;width:auto;height:auto;border-bottom:1px solid var(--lift)}
+  .sv-js .sv-side{position:fixed;top:0;bottom:0;left:0;z-index:60;width:min(280px,85vw);height:100%;overflow-y:auto;overscroll-behavior:contain;
+    border-right:1px solid var(--lift);border-bottom:0;transform:translateX(-100%);visibility:hidden;transition:transform .25s ease,visibility 0s linear .25s}
+  .sv-js.sv-menu-open .sv-side{transform:none;visibility:visible;box-shadow:var(--sh-3);transition:transform .25s ease,visibility 0s}
+  .sv-js .sv-nav{flex:1 0 auto;overflow:visible}
+  .sv-js .sv-burger,.sv-js .sv-side-x{display:inline-flex}
+  .sv-js .sv-shade{display:block;position:fixed;inset:0;z-index:55;background:var(--shade);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility 0s linear .25s}
+  .sv-js.sv-menu-open .sv-shade{opacity:1;visibility:visible;transition:opacity .25s ease,visibility 0s}
+  .sv-js.sv-menu-open body{overflow:hidden}
+  .sv-js .sv-side-foot{position:sticky;bottom:0;z-index:1;margin:0;padding:10px 16px 12px;background:var(--frame);box-shadow:0 -12px 24px -12px var(--shade)}
+  .sv-nav-i{min-height:44px;font-size:15px}
+  .sv-nav-sub{min-height:44px}
+  .sv-ic{width:44px;height:44px}
+  .sv-top{min-height:56px;padding:6px 16px;gap:4px 10px}
+  .sv-crumb a,.sv-crumb i{display:none}
+  .sv-crumb b{font-size:15px}
+  .sv-back{display:inline-flex;align-items:center;gap:2px;min-height:44px;margin-left:-6px;font-size:15px;font-weight:600;color:var(--fg);text-decoration:none}
+  .sv-back svg{transform:rotate(180deg);color:var(--mute)}
+  .sv-back + .sv-crumb{display:none}
+  .sv-top-r{font-size:13px;min-height:44px}
+  .sv-stage{padding:18px 16px 28px}
+  .sv-kicker{margin-bottom:10px;font-size:13px}
+  .sv-phrase,.sv-stage--inst .sv-phrase{font-size:40px;line-height:1.05;letter-spacing:-1.4px}
+  .sv-phrase > .sv-dim{font-size:30px;line-height:1.1;letter-spacing:-.9px}
+  .sv-stage--inst .sv-stage-in{grid-template-columns:minmax(0,1fr);gap:24px}
+  .sv-stage--inst .sv-ring{width:180px;height:180px}
+  .sv-stage--inst .sv-ring .sv-ring-n b{font-size:48px;letter-spacing:-1.8px}
+  .sv-stage--inst .sv-ring .sv-ring-n b small{font-size:20px}
+  .sv-stage--inst .sv-ring--plan{margin-bottom:34px}
+  .sv-page{padding:0 16px 48px}
+  .sv-row{gap:16px}
+  .sv-row + .sv-row{margin-top:16px}
+  .sv-s12,.sv-s8,.sv-s6,.sv-s4,.sv-s3{grid-column:1 / -1}
+  .sv-col{gap:16px}
+  .sv-card{padding:22px 20px;border-radius:24px}
+  .sv-paper{padding:22px 20px 18px;border-radius:24px;
+    box-shadow:0 0 0 1px var(--spec),inset 0 -50px 70px -50px var(--warm-spill),0 0 24px 0 var(--warm-spill),0 32px 48px -10px var(--warm-spill)}
+  .sv-card-h{margin-bottom:16px}
+  .sv-btn--lg,.sv-acts .sv-btn{min-height:48px}
+  .sv-btn--sm{min-height:44px}
+  .sv-acts .sv-btn--fill{width:100%}
+  .sv-acts{gap:10px}
+  .sv-lamps{grid-template-columns:repeat(auto-fill,44px);gap:12px}
+  /* строка человека: на телефоне вся строка - ссылка, тихая кнопка уходит, имя не рвётся */
+  .sv-mrow:has(> .sv-btn){grid-template-columns:minmax(0,1fr) 16px}
+  .sv-mrow > .sv-btn{display:none}
+  .sv-chips,.sv-chips--6,.sv-chips--8{grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+  .sv-chip{height:44px}
+  .sv-week{grid-template-columns:1fr;gap:12px}
+  .sv-fact{padding:4px 16px 6px}
+  .sv-fact b{font-size:24px;letter-spacing:-.8px}
+  .sv-seg{display:flex}
+  .sv-seg-i{flex:1;min-height:44px}
+  .sv-find{width:100%}
+  .sv-input{font-size:17px}
+  /* таблица - строки-карточки: кто, шеврон и строка .sv-tbl-m под именем */
+  .sv-tbl:not(.sv-tbl--ref) thead{display:none}
+  .sv-tbl:not(.sv-tbl--ref),.sv-tbl:not(.sv-tbl--ref) tbody{display:block}
+  .sv-tbl:not(.sv-tbl--ref) tr{display:grid;grid-template-columns:minmax(0,1fr) 16px;align-items:center;column-gap:12px;padding:12px 0;border-bottom:1px solid var(--rule)}
+  .sv-tbl:not(.sv-tbl--ref) tr:last-child{border-bottom:0}
+  .sv-tbl:not(.sv-tbl--ref) td{display:none;height:auto;padding:0;border:0;white-space:normal}
+  .sv-tbl:not(.sv-tbl--ref) td:first-child,.sv-tbl:not(.sv-tbl--ref) td.sv-tbl-go{display:block}
+  .sv-tbl:not(.sv-tbl--ref) td.sv-tbl-go{grid-column:2;grid-row:1}
+  .sv-tbl:not(.sv-tbl--ref) tr:hover > td{background:none;box-shadow:none}
+  .sv-tbl:not(.sv-tbl--ref) .sv-tbl-hot{margin-left:-12px;padding-left:12px;background:linear-gradient(90deg,var(--warm-spill),transparent 70%);box-shadow:inset 2px 0 0 var(--amber)}
+  .sv-tbl .sv-tbl-hot > td:first-child::before,.sv-tbl .sv-tbl-hot > td:first-child::after{content:none}
+  .sv-tbl-who{align-items:flex-start}
+  .sv-tbl .sv-tbl-m{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;margin-top:4px;font-size:13px;color:var(--fg-2);white-space:normal}
+  .sv-tbl--ref th,.sv-tbl--ref td{padding-left:8px;padding-right:8px;font-size:13px}
+  .sv-tbl--ref .sv-tbl-opt{display:none}
+  .sv-tbl-f{flex-direction:column;align-items:stretch;gap:8px}
+  .sv-sec{padding-top:48px;scroll-margin-top:64px}
+  .sv-sec-h{grid-template-columns:minmax(0,1fr);margin-bottom:24px}
+  .sv-sec-n{padding:0 0 6px}
+  .sv-sec-t{font-size:30px;letter-spacing:-.9px}
+  .sv-sec-l{grid-column:1;font-size:15px}
+  .sv-sub{margin-top:40px}
+  .sv-sub-t{font-size:20px;letter-spacing:-.3px}
+  .sv-sample{padding:20px 16px;border-radius:16px}
+  .sv-sample--flat{padding:0}
+  .sv-dd,.sv-grid,.sv-grid--2,.sv-grid--4{grid-template-columns:minmax(0,1fr)}
+  .sv-spec{grid-template-columns:minmax(0,1fr);gap:4px}
+  .sv-sw{grid-template-columns:72px minmax(0,1fr)}
+  .sv-sw svg{width:72px;height:48px}
+  .sv-face{font-size:48px;letter-spacing:-1.8px}
+  .sv-screen{border-radius:16px}
+  .sv-shell-demo{grid-template-columns:minmax(0,1fr)}
+  .sv-screen .sv-stage{padding:20px 16px 24px}
+}
+@media (max-width:640px){
+  .sv-dd-pic{min-height:0}
+}
+
+/* ===== Движение: при reduced-motion переходов нет, спиннер втрое медленнее ===== */
+@media (prefers-reduced-motion:reduce){
+  .sv-btn,.sv-theme svg,.sv-side,.sv-shade{transition:none!important}
+  .sv-btn:active,.sv-theme:active svg{transform:none}
+  .sv-spin{animation-duration:2.4s}
+}
+
+/* ===== 13. Печать (PDF дизайнбука) ===== */
+@media print{
+  @page{margin:0}
+  .sv-frame,.sv-room,.sv-frame *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sv-frame{display:block;background:var(--room)}
+  .sv-side,.sv-top,.sv-skip,.sv-copy,.sv-shade{display:none!important}
+  .sv-frame > .sv-room{height:auto;margin:0;overflow:visible;border:0;border-radius:0;clip-path:none}
+  .sv-card,.sv-paper,.sv-demo,.sv-sw,.sv-spec,.sv-screen,.sv-dd{break-inside:avoid}
+  .sv-sec{break-before:page;padding-top:40px}
+  .sv-sec--first{break-before:auto}
+  .sv-code pre{max-height:none;white-space:pre-wrap}
+}
